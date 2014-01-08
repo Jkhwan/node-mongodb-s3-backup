@@ -72,6 +72,31 @@ function removeRF(target, callback) {
   });
 }
 
+/* removeOldFiles
+ *
+ * Remove a file or directory.
+ *
+ * @param target       path to the file or directory
+ * @param count        number of files to keep
+ * @param callback     callback(error)
+ */
+function removeOldFiles(target, count, callback) {
+  var fs = require('fs');
+
+  callback = callback || function() {};
+
+  fs.readdir(target, function(err, list) {
+    if (err) return done(err);
+    list.sort();
+    if (list.length > count+1) {
+      for(var i = 0, size = (list.length - count - 1); i < size; i++) {
+        log("Removing " + path.join(target, list[i+1]), 'warn');
+        exec('rm -rf ' + path.join(target, list[i+1]), callback);
+      }
+    }
+  });
+}
+
 /**
  * mongoDump
  *
@@ -254,7 +279,8 @@ function sync(mongodbConfig, s3Config, callback) {
     async.apply(removeRF, path.join(tmpDir, archiveName)),
     async.apply(mongoDump, mongodbConfig, tmpDir),
     async.apply(compressDirectory, tmpDir, mongodbConfig.db, archiveName),
-    async.apply(sendToS3, s3Config, tmpDir, archiveName)
+    async.apply(sendToS3, s3Config, tmpDir, archiveName),
+    async.apply(removeOldFiles, tmpDir, 7)
   ], function(err) {
     if(err) {
       log(err, 'error');
