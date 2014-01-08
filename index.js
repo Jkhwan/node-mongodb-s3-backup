@@ -83,13 +83,18 @@ function removeRF(target, callback) {
  */
 function mongoDump(options, directory, callback) {
   var mongodump
-    , mongoOptions;
+    , mongoOptions
+    , collections;
 
   callback = callback || function() { };
 
   log('Starting mongodump of ' + options.db, 'info');
 
-  var collections = options.collections || ['all_collections'];
+  if (options.collections && options.collections.length > 0) {
+    collections = options.collections;
+  } else {
+    collections = ['backup_all_collections'];
+  } 
   var dump_count = 0;
 
   for(var i = 0, size = collections.length; i < size; i++) {
@@ -100,7 +105,7 @@ function mongoDump(options, directory, callback) {
       '-o', directory
     ];
 
-    if (collections[0] != 'all_collections') {
+    if (collections[0] != 'backup_all_collections') {
       mongoOptions.push('-c', collections[i]);
     }
 
