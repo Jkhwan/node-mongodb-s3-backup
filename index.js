@@ -87,39 +87,54 @@ function mongoDump(options, directory, callback) {
 
   callback = callback || function() { };
 
-  mongoOptions= [
-    '-h', options.host + ':' + options.port,
-    '-d', options.db,
-    '-o', directory
-  ];
-
-  if(options.username && options.password) {
-    mongoOptions.push('-u');
-    mongoOptions.push(options.username);
-
-    mongoOptions.push('-p');
-    mongoOptions.push(options.password);
-  }
-
   log('Starting mongodump of ' + options.db, 'info');
-  mongodump = spawn('mongodump', mongoOptions);
 
-  mongodump.stdout.on('data', function (data) {
-    log(data);
-  });
+  var collections = options.collections || ['all_collections'];
+  var dump_count = 0;
 
-  mongodump.stderr.on('data', function (data) {
-    log(data, 'error');
-  });
+  for(var i = 0, size = collections.length; i < size; i++) {
 
-  mongodump.on('exit', function (code) {
-    if(code === 0) {
-      log('mongodump executed successfully', 'info');
-      callback(null);
-    } else {
-      callback(new Error("Mongodump exited with code " + code));
+    mongoOptions= [
+      '-h', options.host + ':' + options.port,
+      '-d', options.db,
+      '-o', directory
+    ];
+
+    if (collections[0] != 'all_collections') {
+      mongoOptions.push('-c', collections[i]);
     }
-  });
+
+    if(options.username && options.password) {
+      mongoOptions.push('-u');
+      mongoOptions.push(options.username);
+
+      mongoOptions.push('-p');
+      mongoOptions.push(options.password);
+    }
+
+    mongodump = spawn('mongodump', mongoOptions);
+    dump_count++;
+
+    mongodump.stdout.on('data', function (data) {
+      log(data);
+    });
+
+    mongodump.stderr.on('data', function (data) {
+      log(data, 'error');
+    });
+
+    mongodump.on('exit', function (code) {
+      if(code === 0) {
+        dump_count--;
+        if (dump_count == 0) {
+          log('mongodump executed successfully', 'info');
+          callback(null);
+        }
+      } else {
+        callback(new Error("Mongodump exited with code " + code));
+      }
+    });
+  }
 }
 
 /**
