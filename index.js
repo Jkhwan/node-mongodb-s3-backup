@@ -67,7 +67,7 @@ function removeRF(target, callback) {
     if (!exists) {
       return callback(null);
     }
-    log("Removing " + target, 'warn');
+    log("Removing " + target, 'info');
     exec( 'rm -rf ' + target, callback);
   });
 }
@@ -90,7 +90,7 @@ function removeOldFiles(target, count, callback) {
     list.sort();
     if (list.length > count+1) {
       for(var i = 0, size = (list.length - count - 1); i < size; i++) {
-        log("Removing " + path.join(target, list[i+1]), 'warn');
+        log("Removing " + path.join(target, list[i+1]), 'info');
         exec('rm -rf ' + path.join(target, list[i+1]), callback);
       }
     }
@@ -146,7 +146,7 @@ function mongoDump(options, directory, callback) {
     dump_count++;
 
     mongodump.stdout.on('data', function (data) {
-      log(data);
+      //log(data);
     });
 
     mongodump.stderr.on('data', function (data) {
