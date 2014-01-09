@@ -90,10 +90,10 @@ function mongoDump(options, directory, callback) {
 
   log('Starting mongodump of ' + options.db, 'info');
 
-  if (options.collections && options.collections.length > 0) {
-    collections = options.collections;
+  if (options.backup_collections && options.backup_collections.length > 0) {
+    collections = options.backup_collections;
   } else {
-    collections = ['backup_all_collections'];
+    collections = ['backup_all'];
   } 
   var dump_count = 0;
 
@@ -105,7 +105,7 @@ function mongoDump(options, directory, callback) {
       '-o', directory
     ];
 
-    if (collections[0] != 'backup_all_collections') {
+    if (collections[0] != 'backup_all') {
       mongoOptions.push('-c', collections[i]);
     }
 
