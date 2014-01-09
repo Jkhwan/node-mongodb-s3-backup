@@ -5,7 +5,7 @@
     "username": false,
     "password": false,
     "db": "database_to_backup",
-    "backup_collections": []
+    "backups": []
   },
   "s3": {
     "key": "your_s3_key",

@@ -115,8 +115,8 @@ function mongoDump(options, directory, callback) {
 
   log('Starting mongodump of ' + options.db, 'info');
 
-  if (options.backup_collections && options.backup_collections.length > 0) {
-    collections = options.backup_collections;
+  if (options.backups && options.backups.length > 0) {
+    collections = options.backups;
   } else {
     collections = ['backup_all'];
   } 
