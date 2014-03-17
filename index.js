@@ -81,18 +81,27 @@ function removeRF(target, callback) {
  * @param callback     callback(error)
  */
 function removeOldFiles(target, count, callback) {
-  var fs = require('fs');
+  var fs = require('fs')
+    , async = require('async');
 
   callback = callback || function() {};
 
   fs.readdir(target, function(err, list) {
     if (err) return done(err);
-    list.sort();
     if (list.length > count+1) {
-      for(var i = 0, size = (list.length - count - 1); i < size; i++) {
-        log("Removing " + path.join(target, list[i+1]), 'info');
-        exec('rm -rf ' + path.join(target, list[i+1]), callback);
-      }
+      list = list.sort().slice(1, list.length - count);
+      async.forEachSeries(
+        list, 
+        function(item, cb) {
+          log("Removing " + path.join(target, item), 'info');
+          exec('rm -rf ' + path.join(target, item), cb);
+        },
+        function(err) {
+          return callback(err);
+        }
+      );
+    } else {
+      return callback(null);
     }
   });
 }
